@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sentence Surgery – หมอผ่าตัดจัดเรียงประโยค</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Mali:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fdf3fa;--card:#fff;--ink:#4a4466;--mint:#c9f0e1;--pink:#ffd6e5;--lav:#e1d9ff;--sky:#cfe9ff;--butter:#fff2c2;--peach:#ffdcc9;--line:#cfc6ee;--ok:#b9ecd3;--no:#ffd0bd}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a2640;--card:#3a3558;--ink:#f3efff;--mint:#3d6a5a;--pink:#6b4560;--lav:#4a4478;--sky:#3c5878;--butter:#6e6340;--peach:#74503f;--line:#5d5690;--ok:#3f7a62;--no:#85553f}}
+:root[data-theme="dark"]{--bg:#2a2640;--card:#3a3558;--ink:#f3efff;--mint:#3d6a5a;--pink:#6b4560;--lav:#4a4478;--sky:#3c5878;--butter:#6e6340;--peach:#74503f;--line:#5d5690;--ok:#3f7a62;--no:#85553f}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'Mali',system-ui,sans-serif;font-size:17px;-webkit-user-select:none;user-select:none}
+.app{max-width:760px;margin:0 auto;padding:14px 14px 28px}
+.hide{display:none!important}
+h1{font-family:'Fredoka',sans-serif;font-size:clamp(28px,7vw,44px);margin:6px 0;line-height:1.15}
+.center{text-align:center}
+.big{font-size:84px;line-height:1}
+button{font-family:inherit;font-size:18px;color:var(--ink);border:3px solid var(--line);background:var(--card);border-radius:18px;padding:12px 20px;cursor:pointer;min-height:48px}
+button:focus-visible,.chip:focus-visible{outline:4px solid #8f7cff;outline-offset:2px}
+.btn{background:var(--mint);font-weight:600}.btn.pk{background:var(--pink)}.btn.lv{background:var(--lav)}
+.menu{display:grid;gap:14px;margin:22px auto;max-width:480px}
+.menu button{padding:18px;text-align:left}.menu small{display:block;font-weight:400;opacity:.85}
+.top{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.dots{display:flex;gap:6px}.dots i{width:22px;height:22px;border-radius:50%;background:var(--lav);display:grid;place-items:center;font-size:13px;font-style:normal}
+.dots i.done{background:var(--mint)}.dots i.now{outline:3px solid #8f7cff}
+.stage{display:flex;gap:12px;align-items:center;background:var(--sky);border-radius:26px;padding:14px;margin:12px 0}
+.pic{flex:none;width:112px;height:112px;border-radius:50%;background:var(--butter);display:grid;place-items:center;font-size:64px;cursor:pointer;border:4px solid var(--card)}
+.say{background:var(--card);border-radius:20px;padding:12px 16px;flex:1;position:relative;min-height:60px}
+.say b{font-family:'Fredoka',sans-serif;font-weight:500}
+.lvtag{display:inline-block;background:var(--pink);border-radius:12px;padding:2px 12px;font-size:15px;margin-bottom:4px}
+.zone{min-height:84px;background:var(--card);border:4px dashed var(--line);border-radius:24px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.zone.ok{background:var(--ok);border-style:solid}
+.zone:empty::before{content:'ลากหรือแตะคำมาวางตรงนี้ 👇';opacity:.6}
+.bank{margin-top:14px;min-height:70px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:10px;background:var(--lav);border-radius:24px}
+.chip{font-family:'Fredoka',sans-serif;font-weight:500;font-size:clamp(19px,4.6vw,24px);padding:9px 16px;border-radius:16px;background:var(--pink);border:3px solid var(--card);touch-action:none;cursor:grab}
+.bank .chip:nth-child(3n+2){background:var(--butter)}.bank .chip:nth-child(3n){background:var(--mint)}
+.zone .chip{background:var(--sky)}.zone .chip.right{background:var(--ok)}.zone .chip.wrong{background:var(--no)}
+.dot{font-family:'Fredoka',sans-serif;font-size:26px}
+.ghost{position:fixed;z-index:99;transform:translate(-50%,-50%) scale(1.1);pointer-events:none;box-shadow:0 8px 18px #0003}
+.acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.msg{min-height:56px;margin-top:12px;text-align:center;font-size:19px;font-weight:600}
+.stars{font-size:26px;letter-spacing:2px}
+.boom{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:90}
+.boom span{position:absolute;bottom:-40px;font-size:30px;animation:up 1.6s ease-out forwards}
+@keyframes up{to{transform:translateY(-105vh) rotate(40deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.boom{display:none}}
+@media(max-width:480px){.pic{width:84px;height:84px;font-size:48px}.stage{padding:10px}}
+</style></head><body><div class="app">
+
+<section id="home" class="center">
+ <div class="big">🏥👩‍⚕️</div>
+ <h1>Sentence Surgery</h1>
+ <p>ยินดีต้อนรับคุณหมอตัวน้อย! วันนี้เรามาช่วย "ผ่าตัดประโยค" ให้กลับมาเป็นประโยคที่สมบูรณ์กัน 💖<br>ฝึกประโยคบอกเล่า Present Simple</p>
+ <div class="menu">
+  <button class="btn" data-go="1">🩺 ด่าน 1: ห้องผ่าตัดเรียงประโยค<small>ดูภาพ แล้วเรียงคำให้เป็นประโยค</small></button>
+  <button class="btn lv" data-go="2">🎧 ด่าน 2: หมอ AI อ่านให้ฟัง<small>ฟังเสียงหมอ แล้วเรียงประโยคที่ได้ยิน</small></button>
+ </div>
+ <p style="opacity:.8;font-size:15px">เล่นกี่รอบก็ได้ ไม่มีแพ้ไม่มีชนะ ผิดแล้วลองใหม่ได้เสมอ ✨</p>
+</section>
+
+<section id="game" class="hide">
+ <div class="top"><button id="back" aria-label="กลับหน้าแรก">🏠</button><div class="dots" id="dots"></div><div class="stars" id="sc">⭐ 0</div></div>
+ <div class="stage">
+  <div class="pic" id="pic" role="button" tabindex="0" aria-label="ฟังเสียง">🧑‍⚕️</div>
+  <div class="say"><span class="lvtag" id="lt"></span><div id="say"></div></div>
+ </div>
+ <div class="zone" id="zone" aria-label="พื้นที่เรียงประโยค"></div>
+ <div class="bank" id="bank" aria-label="คลังคำศัพท์"></div>
+ <div class="msg" id="msg" aria-live="polite"></div>
+ <div class="acts">
+  <button class="btn" id="check">✅ ตรวจคำตอบ</button>
+  <button id="reset">🔄 เริ่มใหม่</button>
+  <button class="btn pk hide" id="reveal">💡 ดูเฉลย</button>
+  <button class="btn lv hide" id="next">ข้อต่อไป ▶</button>
+ </div>
+</section>
+
+<section id="end" class="hide center">
+ <div class="big">🎉🏅</div><h1>ผ่าตัดสำเร็จ!</h1>
+ <div class="stars" id="fs"></div><p id="fm"></p>
+ <div class="acts"><button class="btn" id="again">เล่นด่านนี้อีกครั้ง</button><button class="btn lv" id="other"></button><button id="home2">🏠 หน้าแรก</button></div>
+</section>
+</div>
+<script>
+const S=[
+["I help people","🤝"],["Doctors wear masks","😷"],["The nurse smiles","😊"],
+["The doctor washes her hands","🧼"],["The nurse brings the tools","🧰"],["We clean the room every day","🧹"],
+["The surgeon wears a blue mask and gloves","🧤"],["She checks the patient's heart every morning","❤️"],
+["The nurses and doctors work together in the hospital","🏥"],["The patient feels better and thanks the doctor","💖"]];
+const GOOD=["เก่งมากเลย! 🌟","คุณหมอฝีมือเยี่ยม! 💖","ถูกต้องเป๊ะ! ผ่าตัดสำเร็จ ✨","สุดยอด! ไปต่อกันเลย 🎉","ว้าว เรียงได้สมบูรณ์! 🩺"];
+const TRY=["ใกล้แล้วนะ ลองสลับคำดูอีกนิด 💪","ไม่เป็นไร คุณหมอลองใหม่ได้เสมอ 🌈","สู้ๆ! ดูสีของคำนะ สีส้มคือยังไม่ถูกที่ 🧡","เกือบถูกแล้ว ค่อยๆ คิดไปด้วยกัน 😊"];
+const $=id=>document.getElementById(id);
+let mode=1,i=0,stars=0,bad=0,placed=[],bank=[],done=false;
+const tag=n=>n<3?"ง่าย 🌱":n<6?"ปานกลาง 🌿":"ท้าทาย 🌳";
+const show=id=>["home","game","end"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+
+function speak(t,slow){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=slow?.6:.82;u.pitch=1.1;
+ const v=speechSynthesis.getVoices().filter(x=>/^en[-_]US/i.test(x.lang));
+ const p=v.find(x=>/samantha|google us|female|aria|jenny/i.test(x.name))||v[0];if(p)u.voice=p;speechSynthesis.speak(u)}catch(e){}}
+function boom(){const b=document.createElement("div");b.className="boom";
+ for(let k=0;k<16;k++){const s=document.createElement("span");s.textContent=["⭐","💖","✨","🩹","💊"][k%5];s.style.left=Math.random()*95+"%";s.style.animationDelay=Math.random()*.4+"s";b.appendChild(s)}
+ document.body.appendChild(b);setTimeout(()=>b.remove(),2200)}
+
+function start(m){mode=m;i=0;stars=0;show("game");load()}
+function load(){
+ const [t,e]=S[i];done=false;bad=0;placed=[];
+ const w=t.split(" ").map((x,k)=>({id:k,w:x}));
+ do{bank=[...w].sort(()=>Math.random()-.5)}while(bank.map(x=>x.id).join()==w.map(x=>x.id).join());
+ $("dots").innerHTML=S.map((_,k)=>`<i class="${k<i?"done":k==i?"now":""}">${k<i?"✓":""}</i>`).join("");
+ $("sc").textContent="⭐ "+stars;$("lt").textContent=`ข้อ ${i+1} · ${tag(i)}`;
+ $("pic").textContent=mode==1?e:"👩‍⚕️";
+ $("say").innerHTML=mode==1?"<b>หมอ:</b> ดูภาพนี้แล้วเรียงคำให้เป็นประโยคนะ!":"<b>หมอ AI:</b> ฟังให้ดีนะ แล้วเรียงประโยคที่ได้ยิน! 🔊<br><small>แตะรูปหมอเพื่อฟังอีกครั้ง</small>";
+ $("msg").textContent="";$("zone").classList.remove("ok");
+ ["next","reveal"].forEach(x=>$(x).classList.add("hide"));$("check").classList.remove("hide");$("reset").classList.remove("hide");
+ render();if(mode==2)setTimeout(()=>speak(t),400)}
+
+function chip(o,from,cls){const c=document.createElement("div");c.className="chip "+(cls||"");c.textContent=o.w;c.tabIndex=0;
+ c.onpointerdown=e=>drag(e,o,from,c);c.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();toggle(o,from)}};return c}
+function render(mark){
+ const z=$("zone"),b=$("bank");z.innerHTML="";b.innerHTML="";
+ const t=S[i][0].split(" ");
+ placed.forEach((o,k)=>z.appendChild(chip(o,"ans",mark?(o.id==k?"right":"wrong"):"")));
+ if(placed.length){const d=document.createElement("span");d.className="dot";d.textContent=".";z.appendChild(d)}
+ bank.forEach(o=>b.appendChild(chip(o,"bank")));
+}
+function toggle(o,from){if(done)return;
+ if(from=="bank"){bank=bank.filter(x=>x!==o);placed.push(o)}else{placed=placed.filter(x=>x!==o);bank.push(o)}
+ $("msg").textContent="";render()}
+function drag(e,o,from,el){if(done)return;e.preventDefault();const sx=e.clientX,sy=e.clientY;let g=null;
+ const mv=ev=>{if(!g&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>8){g=el.cloneNode(true);g.classList.add("ghost");document.body.appendChild(g);el.style.opacity=.3}
+  if(g){g.style.left=ev.clientX+"px";g.style.top=ev.clientY+"px"}};
+ const up=ev=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);
+  if(!g){toggle(o,from);return}
+  g.remove();const r=$("zone").getBoundingClientRect();
+  const inZ=ev.clientX>r.left&&ev.clientX<r.right&&ev.clientY>r.top-20&&ev.clientY<r.bottom+20;
+  bank=bank.filter(x=>x!==o);placed=placed.filter(x=>x!==o);
+  if(inZ){const cs=[...$("zone").querySelectorAll(".chip")].filter(c=>c!==el);
+   const idx=cs.filter(c=>{const q=c.getBoundingClientRect();return q.bottom<ev.clientY||(q.top<=ev.clientY&&q.left+q.width/2<ev.clientX)}).length;
+   placed.splice(idx,0,o)}else bank.push(o);
+  $("msg").textContent="";render()};
+ addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up)}
+
+function win(first){done=true;$("zone").classList.add("ok");render(true);if(first)stars++;$("sc").textContent="⭐ "+stars;
+ $("msg").textContent=GOOD[i%GOOD.length];
+ if(mode==2){$("pic").textContent=S[i][1]}
+ boom();speak(S[i][0]);
+ ["check","reset","reveal"].forEach(x=>$(x).classList.add("hide"));$("next").classList.remove("hide");
+ $("next").textContent=i==9?"ดูผลงาน 🏅":"ข้อต่อไป ▶"}
+$("check").onclick=()=>{if(done)return;const t=S[i][0].split(" ");
+ if(placed.length<t.length){$("msg").textContent="ยังมีคำเหลืออยู่นะ ลองเอามาวางให้ครบก่อน 😊";return}
+ if(placed.map(o=>o.w).join(" ")==S[i][0])win(bad==0||true);
+ else{bad++;render(bad>=2);$("msg").textContent=TRY[bad%TRY.length];if(bad>=3)$("reveal").classList.remove("hide")}};
+$("reset").onclick=()=>{if(done)return;bank=[...bank,...placed];placed=[];$("msg").textContent="";render()};
+$("reveal").onclick=()=>{const t=S[i][0].split(" ");placed=t.map((w,k)=>({id:k,w}));bank=[];stars=Math.max(0,stars);win(false);$("msg").textContent="ไม่เป็นไรนะ ดูเฉลยแล้วลองอ่านตามดู เดี๋ยวรอบหน้าต้องทำได้! 💪"};
+$("next").onclick=()=>{if(i==9){finish()}else{i++;load()}};
+$("pic").onclick=()=>speak(S[i][0]);
+$("pic").onkeydown=e=>{if(e.key=="Enter")speak(S[i][0])};
+function finish(){show("end");$("fs").textContent="⭐".repeat(stars)+"☆".repeat(10-stars);
+ $("fm").textContent=stars>=8?"เก่งสุดๆ! คุณหมอผ่าตัดประโยคได้อย่างมืออาชีพ 🏆":stars>=5?"ทำได้ดีมาก! ฝึกอีกนิดจะยิ่งเก่งขึ้นอีก 🌟":"ทุกครั้งที่ฝึกคือการเรียนรู้ ลองเล่นอีกรอบนะ สู้ๆ! 💖";
+ $("other").textContent=mode==1?"🎧 ไปด่าน 2":"🩺 ไปด่าน 1";boom()}
+$("again").onclick=()=>start(mode);$("other").onclick=()=>start(mode==1?2:1);$("home2").onclick=$("back").onclick=()=>{speechSynthesis.cancel();show("home")};
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>start(+b.dataset.go));
+try{speechSynthesis.getVoices()}catch(e){}
+</script></body></html>
